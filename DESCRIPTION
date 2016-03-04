@@ -1,0 +1,11 @@
+Package: fugu
+Title: Functional Function Level Programming
+Version: 0.0.1
+Date: 2016-03-03
+Author: Vincent Toups
+Maintainer: Vincent Toups <vincent.toups@gmail.com>
+Description: Fugu is a functional and function-level programming library for R.
+Suggests:
+    discretion
+License: LGPL
+RoxygenNote: 5.0.1.9000
