@@ -1,5 +1,4 @@
 #' FUGU - Function(al/ level) programming in R
-#' 
 
 #' Partial Application on the Left
 #'
@@ -42,7 +41,7 @@ partialRight <- function(f,...){
 #' @keywords functional
 #' @export
 curryRight <- function(f){
-   partialRight(partialRight,f)
+   partialLeft(partialRight,f)
 }
 
 #' Currying on the left.
@@ -54,7 +53,7 @@ curryRight <- function(f){
 #' @keywords functional
 #' @export
 curryLeft <- function(f){
-    partialRight(partialLeft,f)
+    partialLeft(partialLeft,f)
 }
 
 .l <- partialLeft
@@ -72,6 +71,15 @@ ap <- function(f,args){
     do.call(f,args)
 }
 
+
+
+#' 
+unTuple <- function(f){
+    function(...){
+        f(list(...))
+    }
+}
+
 #' Curried (left) function application
 #'
 #' Returns a function waiting for an argument list.
@@ -80,6 +88,28 @@ ap <- function(f,args){
 #' @keywords functional
 #' @export
 cap <- curryLeft(ap)
+
+#' convert a many-arg function into a single arg, list function
+#'
+#' Returns a function waiting for an argument list.
+#' @param f a function to convert to a function needing a list
+#' @return g st. cap(f)(list(a,b,c)) == f(a,b,c)
+#' @keywords functional
+#' @export
+fTuple <- cap
+
+#' convert a function taking a single list to one taking those values as arguments
+#'
+#' Returns a function waiting for a list.
+#' @param f a function to convert to a function needing a list
+#' @return g st. fUnTuple(f)(a,b,c) == f(list(a,b,c))
+#' @keywords functional
+#' @export
+fUnTuple <- function(f){
+    function(...){
+        f(list(...))
+    }
+}
 
 #' (reverse) Function Composition
 #'
@@ -152,6 +182,41 @@ access <- function(o,k){
 tr <- function(o,k,f){
     o[[k]] <- f(o[[k]])
     o
+}
+
+#' Swap argument positions
+#'
+#' modify argument list order of a function
+#' @param f a function
+#' @param p1 a position or index
+#' @param p2 a position or index
+#' @return g st arguments p1 and p2 are swapped
+#' @keywords functional
+#' @export
+swap <- function(f,p1,p2){
+    function(...){
+        args <- list(...)
+        tmp <- args[[p1]]
+        args[[p1]] <- args[[p2]]
+        args[[p2]] <- tmp
+        ap(f,args)
+    }
+}
+
+#' permute argument positions
+#'
+#' modify argument list order of a function
+#' @param f a function
+#' @param ... a list of positions
+#' @return g st g(a,b,c) is f where each arg has been taken from the
+#'     index at the position passed in.
+#' @keywords functional
+#' @export
+permuteArgs <- function(f,...){
+    permutation <- unlist(list(...))
+    function(...){        
+        ap(f,list(...)[permutation])
+    }
 }
 
 #' The custom constant function
@@ -247,5 +312,71 @@ apFrom <- function(f,fs,v){
     ap(f,cleave(fs,v))
 }
 
+#' Apply from a list of keys
+#'
+#' Apply f to the results of indexing v with fs
+#' @param f a function
+#' @param fs a list of functions to cleave over v
+#' @param v a value
+#' @return q like f(fs1(v),fs2(v),...)
+#' @keywords functions
+#' @export
+apFromKeys <- function(f,keys,v){
+    ap(f,map(partialLeft(`[`,v),keys))
+}
 
 
+#' function-level OR operator
+#'
+#' Return a new function which is true only when all Fs are true
+#' @param ... a list of functions
+#' @return f st. f(a,b,c) is true when f1(a,b,c) || f2(a,b,c) ...
+#' @keywords functional
+#' @export
+fOr <- function(...){
+    fs <- list(...)
+    n <- length(fs)
+    function(...){
+        args <- list(...)
+        i <- 2
+        out <- ap(fs[[1]],args)
+        while(i<=n && !out){
+            out <- out || ap(fs[[i]],args)
+        }
+        out
+    }
+}
+
+#' function-level AND operator
+#'
+#' Return a new function which is true only when all Fs are true
+#' @param ... a list of functions
+#' @return f st. f(a,b,c) is true when f1(a,b,c) && f2(a,b,c) ...
+#' @keywords functional
+#' @export
+fAnd <- function(...){
+    fs <- list(...)
+    n <- length(fs)
+    function(...){
+        args <- list(...)
+        i <- 2
+        out <- ap(fs[[1]],args)
+        while(i<=n && out){
+            out <- out && ap(fs[[i]],args)
+        }
+        out
+    }
+}
+
+#' function level not
+#'
+#' invert the result of a function
+#' @param f a function
+#' @return g a function st g(...) = !f(...)
+#' @keywords functional
+#' @export
+fNot <- function(f){
+    function(...){
+        !ap(f,list(...))
+    }
+}

@@ -2,7 +2,8 @@
 % Please edit documentation in R/fugu.R
 \name{partialLeft}
 \alias{partialLeft}
-\title{FUGU - Function(al/ level) programming in R}
+\title{FUGU - Function(al/ level) programming in R
+Partial Application on the Left}
 \usage{
 partialLeft(f, ...)
 }
@@ -15,9 +16,6 @@ partialLeft(f, ...)
 g st. partialLeft(f,a,b,c)(q,r,s) == f(a,b,c,q,r,s)
 }
 \description{
-Partial Application on the Left
-}
-\details{
 Returns a function partially applied on the left.
 }
 \keyword{functional}
