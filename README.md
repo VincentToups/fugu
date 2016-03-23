@@ -12,3 +12,10 @@ Fugu supports: left and right partial application and currying
 (partialLeft, partialRight, curryLeft, curryRight) and two versions of
 function composition (rCompose, compose). It also addess accessor
 functions and nicknames for the peculiar Map and Reduce functions.
+
+Please see R/fugu.R for documentation.
+
+Justification
+-------------
+
+R is an acceptable J!

@@ -71,15 +71,6 @@ ap <- function(f,args){
     do.call(f,args)
 }
 
-
-
-#' 
-unTuple <- function(f){
-    function(...){
-        f(list(...))
-    }
-}
-
 #' Curried (left) function application
 #'
 #' Returns a function waiting for an argument list.
@@ -380,3 +371,30 @@ fNot <- function(f){
         !ap(f,list(...))
     }
 }
+
+#' filter a list
+#'
+#' return list items for which f is true
+#' @param f a function
+#' @param l a list or sequence appropriate for map
+#' @return a list with all elements for which f(i)==FALSE are removed
+#' @export
+filter <- function(f,l){
+    ii <- which(unlist(map(f,l)))
+    l[ii]
+}
+
+#' J-style hook
+#'
+#' apply f to x and g(x)
+#' @param f a function 
+#' @param g a function
+#' @return h st. h(x) -> f(x,g(x))
+#' @keywords functional
+#' @export
+hook <- function(f,g){
+    function(x){
+        f(x,g(x))
+    }
+}
+
